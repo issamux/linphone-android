@@ -20,27 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.linphone.chat;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.ExifInterface;
-import android.media.ThumbnailUtils;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
-import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
-import android.widget.ImageView;
 
 import org.linphone.LinphoneUtils;
 import org.linphone.R;
@@ -51,30 +34,20 @@ import org.linphone.core.ChatMessage;
 import org.linphone.core.ChatMessageListenerStub;
 import org.linphone.core.Content;
 import org.linphone.core.EventLog;
-import org.linphone.mediastream.Log;
-import org.linphone.ui.ContactAvatar;
 import org.linphone.ui.SelectableAdapter;
 import org.linphone.ui.SelectableHelper;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 
 public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
     private Context mContext;
     private List<EventLog> mHistory;
     private List<LinphoneContact> mParticipants;
     private int mItemResource;
-    private Bitmap mDefaultBitmap;
     private GroupChatFragment mFragment;
-    private ChatMessageListenerStub mListener;
 
     private ChatBubbleViewHolder.ClickListener mClickListener;
 
@@ -87,42 +60,6 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
         Collections.reverse(mHistory);
         mParticipants = participants;
         mClickListener = clickListener;
-        mListener = new ChatMessageListenerStub() {
-            @Override
-            public void onFileTransferProgressIndication(ChatMessage message, Content content, int offset, int total) {
-                ChatBubbleViewHolder holder = (ChatBubbleViewHolder) message.getUserData();
-                if (holder == null) return;
-
-                /*if (offset == total) {
-                    holder.fileTransferProgressBar.setVisibility(View.GONE);
-                    holder.fileTransferAction.setVisibility(View.GONE);
-                    holder.fileTransferLayout.setVisibility(View.GONE);
-
-                    displayAttachedFile(message, holder);
-                } else {
-                    holder.fileTransferProgressBar.setVisibility(View.VISIBLE);
-                    holder.fileTransferProgressBar.setProgress(offset * 100 / total);
-                }*/
-            }
-
-            @Override
-            public void onMsgStateChanged(ChatMessage message, ChatMessage.State state) {
-                if (state == ChatMessage.State.FileTransferDone) {
-                    if (!message.isOutgoing()) {
-                        message.setAppdata(message.getFileTransferFilepath());
-                    }
-                    message.setFileTransferFilepath(null); // Not needed anymore, will help differenciate between InProgress states for file transfer / message sending
-                }
-                for (int i = 0; i < mHistory.size(); i++) {
-                    EventLog log = mHistory.get(i);
-                    if (log.getType() == EventLog.Type.ConferenceChatMessage && log.getChatMessage() == message) {
-                        notifyItemChanged(i);
-                        break;
-                    }
-                }
-
-            }
-        };
     }
 
     @Override
@@ -160,9 +97,7 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
 
             LinphoneContact contact = null;
             Address remoteSender = message.getFromAddress();
-            if (message.isOutgoing()) {
-                message.setListener(mListener);
-            } else {
+            if (!message.isOutgoing()) {
                 for (LinphoneContact c : mParticipants) {
                     if (c != null && c.hasAddress(remoteSender.asStringUriOnly())) {
                         contact = c;
@@ -172,6 +107,33 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
             }
             holder.bindMessage(message, contact);
             changeBackgroundDependingOnPreviousAndNextEvents(message, holder, position);
+
+            message.setListener(new ChatMessageListenerStub() {
+                @Override
+                public void onFileTransferProgressIndication(ChatMessage message, Content content, int offset, int total) {
+                    ChatBubbleViewHolder holder = (ChatBubbleViewHolder) message.getUserData();
+                    if (holder == null) return;
+                                /*if (offset == total) {
+                                    fileTransferProgressBar.setVisibility(View.GONE);
+                                    fileTransferAction.setVisibility(View.GONE);
+                                    fileTransferLayout.setVisibility(View.GONE);
+
+                                    displayAttachedFile(message, ChatBubbleViewHolder.this);
+                                } else {
+                                    fileTransferProgressBar.setVisibility(View.VISIBLE);
+                                    fileTransferProgressBar.setProgress(offset * 100 / total);
+                                }*/
+                }
+
+                @Override
+                public void onMsgStateChanged(ChatMessage message, ChatMessage.State state) {
+                    ChatBubbleViewHolder holder = (ChatBubbleViewHolder) message.getUserData();
+                    if (holder != null) {
+                        holder.bindMessage(message, null);
+                        changeBackgroundDependingOnPreviousAndNextEvents(message, holder, position);
+                    }
+                }
+            });
         } else { // Event is not chat message
             Address address = event.getParticipantAddress();
             String displayName = null;
@@ -240,6 +202,7 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
     public void addToHistory(EventLog log) {
         mHistory.add(0, log);
         notifyItemInserted(0);
+        notifyItemChanged(1);
     }
 
     public void addAllToHistory(ArrayList<EventLog> logs) {
@@ -330,210 +293,5 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
                 holder.background.setBackgroundResource(R.drawable.chat_bubble_incoming_full);
             }
         }
-    }
-
-    private void loadBitmap(String path, ImageView imageView) {
-        if (cancelPotentialWork(path, imageView)) {
-            mDefaultBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.chat_file);
-            BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-            final AsyncBitmap asyncBitmap = new AsyncBitmap(mContext.getResources(), mDefaultBitmap, task);
-            imageView.setImageDrawable(asyncBitmap);
-            task.execute(path);
-        }
-    }
-
-    private void openFile(String path) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        File file;
-        Uri contentUri;
-        if (path.startsWith("file://")) {
-            path = path.substring("file://".length());
-            file = new File(path);
-            contentUri = FileProvider.getUriForFile(mContext, mContext.getResources().getString(R.string.file_provider), file);
-        } else if (path.startsWith("content://")) {
-            contentUri = Uri.parse(path);
-        } else {
-            file = new File(path);
-            try {
-                contentUri = FileProvider.getUriForFile(mContext, mContext.getResources().getString(R.string.file_provider), file);
-            } catch (Exception e) {
-                contentUri = Uri.parse(path);
-            }
-        }
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(contentUri.toString());
-        if (extension != null) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        }
-        if (type != null) {
-            intent.setDataAndType(contentUri, type);
-        } else {
-            intent.setDataAndType(contentUri, "*/*");
-        }
-        intent.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
-        mContext.startActivity(intent);
-    }
-
-    private void displayAttachedFile(ChatMessage message, ChatBubbleViewHolder holder) {
-        /*holder.fileName.setVisibility(View.VISIBLE);
-
-        String appData = message.getAppdata();
-        if (appData == null) {
-            for (Content c : message.getContents()) {
-                if (c.isFile()) {
-                    appData = c.getFilePath();
-                }
-            }
-        }
-
-        if (appData != null) {
-            LinphoneUtils.scanFile(message);
-            holder.fileName.setText(LinphoneUtils.getNameFromFilePath(appData));
-            if (LinphoneUtils.isExtensionImage(appData)) {
-                holder.messageImage.setVisibility(View.VISIBLE);
-                loadBitmap(appData, holder.messageImage);
-                holder.messageImage.setTag(appData);
-            } else {
-                holder.openFileButton.setVisibility(View.VISIBLE);
-                holder.openFileButton.setTag(appData);
-                holder.openFileButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        openFile((String) v.getTag());
-                    }
-                });
-            }
-        }*/
-    }
-
-    /*
-     * Bitmap related classes and methods
-     */
-
-    private class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
-        private static final int SIZE_SMALL = 500;
-        private final WeakReference<ImageView> imageViewReference;
-        public String path;
-
-        public BitmapWorkerTask(ImageView imageView) {
-            path = null;
-            // Use a WeakReference to ensure the ImageView can be garbage collected
-            imageViewReference = new WeakReference<ImageView>(imageView);
-        }
-
-        // Decode image in background.
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            path = params[0];
-            Bitmap bm = null;
-            Bitmap thumbnail = null;
-            if (LinphoneUtils.isExtensionImage(path)) {
-                if (path.startsWith("content")) {
-                    try {
-                        bm = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), Uri.parse(path));
-                    } catch (FileNotFoundException e) {
-                        Log.e(e);
-                    } catch (IOException e) {
-                        Log.e(e);
-                    }
-                } else {
-                    bm = BitmapFactory.decodeFile(path);
-                }
-
-                // Rotate the bitmap if possible/needed, using EXIF data
-                try {
-                    Bitmap bm_tmp;
-                    ExifInterface exif = new ExifInterface(path);
-                    int pictureOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
-                    Matrix matrix = new Matrix();
-                    if (pictureOrientation == 6) {
-                        matrix.postRotate(90);
-                    } else if (pictureOrientation == 3) {
-                        matrix.postRotate(180);
-                    } else if (pictureOrientation == 8) {
-                        matrix.postRotate(270);
-                    }
-                    bm_tmp = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
-                    if (bm_tmp != bm) {
-                        bm.recycle();
-                        bm = bm_tmp;
-                    }
-                } catch (Exception e) {
-                    Log.e(e);
-                }
-
-                if (bm != null) {
-                    thumbnail = ThumbnailUtils.extractThumbnail(bm, SIZE_SMALL, SIZE_SMALL);
-                    bm.recycle();
-                }
-                return thumbnail;
-            } else {
-                return mDefaultBitmap;
-            }
-        }
-
-        // Once complete, see if ImageView is still around and set bitmap.
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (isCancelled()) {
-                bitmap = null;
-            }
-            if (imageViewReference != null && bitmap != null) {
-                final ImageView imageView = imageViewReference.get();
-                final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-                if (this == bitmapWorkerTask && imageView != null) {
-                    imageView.setImageBitmap(bitmap);
-                    imageView.setTag(path);
-                    imageView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            openFile((String) v.getTag());
-                        }
-                    });
-                }
-            }
-        }
-    }
-
-    class AsyncBitmap extends BitmapDrawable {
-        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-        public AsyncBitmap(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
-            super(res, bitmap);
-            bitmapWorkerTaskReference = new WeakReference<>(bitmapWorkerTask);
-        }
-
-        public BitmapWorkerTask getBitmapWorkerTask() {
-            return bitmapWorkerTaskReference.get();
-        }
-    }
-
-    private boolean cancelPotentialWork(String path, ImageView imageView) {
-        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-
-        if (bitmapWorkerTask != null) {
-            final String bitmapData = bitmapWorkerTask.path;
-            // If bitmapData is not yet set or it differs from the new data
-            if (bitmapData == null || bitmapData != path) {
-                // Cancel previous task
-                bitmapWorkerTask.cancel(true);
-            } else {
-                // The same work is already in progress
-                return false;
-            }
-        }
-        // No task associated with the ImageView, or an existing task was cancelled
-        return true;
-    }
-
-    private BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-        if (imageView != null) {
-            final Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof AsyncBitmap) {
-                final AsyncBitmap asyncDrawable = (AsyncBitmap) drawable;
-                return asyncDrawable.getBitmapWorkerTask();
-            }
-        }
-        return null;
     }
 }

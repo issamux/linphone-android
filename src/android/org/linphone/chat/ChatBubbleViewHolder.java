@@ -1,6 +1,8 @@
+package org.linphone.chat;
+
 /*
-ChatBubbleViewjava
-Copyright (C) 2017  Belledonne Communications, Grenoble, France
+ChatBubbleViewHolder.java
+Copyright (C) 2018  Belledonne Communications, Grenoble, France
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,10 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-package org.linphone.chat;
-
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -36,7 +37,11 @@ import org.linphone.contacts.ContactsManager;
 import org.linphone.contacts.LinphoneContact;
 import org.linphone.core.Address;
 import org.linphone.core.ChatMessage;
+import org.linphone.core.Content;
 import org.linphone.ui.ContactAvatar;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     public Context mContext;
@@ -57,8 +62,12 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
     public ImageView outgoingImdn;
     public TextView messageText;
 
+    public RecyclerView pictures;
+
     public CheckBox delete;
     private ClickListener mListener;
+    private ChatMessageFilesAdapter mAdapter;
+    private StaggeredGridLayoutManager mLayoutManager;
 
     public ChatBubbleViewHolder(Context context, View view, ClickListener listener) {
         this(view);
@@ -84,6 +93,8 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
         outgoingImdn = view.findViewById(R.id.imdn);
         messageText = view.findViewById(R.id.message);
 
+        pictures = view.findViewById(R.id.pictures);
+
         delete = view.findViewById(R.id.delete_message);
     }
 
@@ -98,7 +109,7 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
         void onItemClicked(int position);
     }
 
-    public void bindMessage(ChatMessage message, LinphoneContact contact) {
+    public void bindMessage(final ChatMessage message, LinphoneContact contact) {
         eventLayout.setVisibility(View.GONE);
         securityEventLayout.setVisibility(View.GONE);
         rightAnchor.setVisibility(View.VISIBLE);
@@ -107,6 +118,7 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
         timeText.setVisibility(View.VISIBLE);
         outgoingImdn.setVisibility(View.GONE);
         avatarLayout.setVisibility(View.GONE);
+        pictures.setVisibility(View.GONE);
 
         ChatMessage.State status = message.getState();
         Address remoteSender = message.getFromAddress();
@@ -166,68 +178,20 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
             messageText.setVisibility(View.VISIBLE);
         }
 
-        /*String externalBodyUrl = message.getExternalBodyUrl();
-        Content fileTransferContent = message.getFileTransferInformation();
-
-        boolean hasFile = message.getAppdata() != null;
-        boolean hasFileTransfer = externalBodyUrl != null;
+        List<Content> fileContents = new ArrayList<>();
         for (Content c : message.getContents()) {
-            if (c.isFile()) {
-                hasFile = true;
-            } else if (c.isFileTransfer()) {
-                hasFileTransfer = true;
+            if (c.isFile() || c.isFileTransfer()) {
+                fileContents.add(c);
             }
         }
-        if (hasFile) { // Something to display
-            displayAttachedFile(message, holder);
+
+        if (fileContents.size() > 0) {
+            pictures.setVisibility(View.VISIBLE);
+            mAdapter = new ChatMessageFilesAdapter(mContext, message, fileContents);
+            pictures.setAdapter(mAdapter);
+            pictures.setHasFixedSize(true);
+            mLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+            pictures.setLayoutManager(mLayoutManager);
         }
-
-        if (hasFileTransfer) { // Incoming file transfer not yet downloaded
-            fileName.setVisibility(View.VISIBLE);
-            fileName.setText(fileTransferContent.getName());
-
-            fileTransferLayout.setVisibility(View.VISIBLE);
-            fileTransferProgressBar.setVisibility(View.GONE);
-            if (message.isFileTransferInProgress()) { // Incoming file transfer in progress
-                fileTransferAction.setVisibility(View.GONE);
-            } else {
-                fileTransferAction.setText(mContext.getString(R.string.accept));
-                fileTransferAction.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mContext.getPackageManager().checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, mContext.getPackageName()) == PackageManager.PERMISSION_GRANTED) {
-                            v.setEnabled(false);
-                            String filename = message.getFileTransferInformation().getName();
-                            File file = new File(LinphoneUtils.getStorageDirectory(mContext), filename);
-                            int prefix = 1;
-                            while (file.exists()) {
-                                file = new File(LinphoneUtils.getStorageDirectory(mContext), prefix + "_" + filename);
-                                Log.w("File with that name already exists, renamed to " + prefix + "_" + filename);
-                                prefix += 1;
-                            }
-                            message.setListener(mListener);
-                            message.setFileTransferFilepath(file.getPath());
-                            message.downloadFile();
-
-                        } else {
-                            Log.w("WRITE_EXTERNAL_STORAGE permission not granted, won't be able to store the downloaded file");
-                            LinphoneActivity.instance().checkAndRequestExternalStoragePermission();
-                        }
-                    }
-                });
-            }
-        } else if (message.isFileTransferInProgress()) { // Outgoing file transfer in progress
-            message.setListener(mListener); // add the listener for file upload progress display
-            messageSendingInProgress.setVisibility(View.GONE);
-            fileTransferLayout.setVisibility(View.VISIBLE);
-            fileTransferAction.setText(mContext.getString(R.string.cancel));
-            fileTransferAction.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    message.cancelFileTransfer();
-                    notifyItemChanged(position);
-                }
-            });
-        }*/
     }
 }
