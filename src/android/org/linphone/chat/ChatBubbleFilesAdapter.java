@@ -1,7 +1,7 @@
 package org.linphone.chat;
 
 /*
-ChatMessageFilesAdapter.java
+ChatBubbleFilesAdapter.java
 Copyright (C) 2018  Belledonne Communications, Grenoble, France
 
 This program is free software; you can redistribute it and/or
@@ -42,6 +42,7 @@ import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.linphone.LinphoneUtils;
@@ -60,12 +61,12 @@ import java.util.List;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 
-public class ChatMessageFilesAdapter extends RecyclerView.Adapter<ChatMessageFilesAdapter.ChatMessageFilesViewHolder> {
+public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFilesAdapter.ChatMessageFilesViewHolder> {
     private Context mContext;
     private ChatMessage mMessage;
     private List<Content> mContents;
 
-    public ChatMessageFilesAdapter(Context context, ChatMessage message, List<Content> contents) {
+    public ChatBubbleFilesAdapter(Context context, ChatMessage message, List<Content> contents) {
         mContext = context;
         mMessage = message;
         mContents = contents;
@@ -84,11 +85,14 @@ public class ChatMessageFilesAdapter extends RecyclerView.Adapter<ChatMessageFil
         holder.file.setVisibility(View.GONE);
         holder.image.setVisibility(View.GONE);
         holder.download.setVisibility(View.GONE);
+        holder.fileTransferInProgress.setVisibility(View.GONE);
 
         Content c = mContents.get(position);
+        c.setUserData(holder);
+
         if (c.isFileTransfer()) {
             holder.download.setVisibility(View.VISIBLE);
-            holder.download.setTag(c);
+            holder.download.setTag(holder);
             holder.download.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -119,7 +123,7 @@ public class ChatMessageFilesAdapter extends RecyclerView.Adapter<ChatMessageFil
             } else {
                 holder.file.setVisibility(View.VISIBLE);
                 holder.file.setTag(appData);
-                holder.file.setText(LinphoneUtils.getExtensionFromFileName(appData));
+                holder.file.setText(LinphoneUtils.getNameFromFilePath(appData));
                 holder.file.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -140,6 +144,7 @@ public class ChatMessageFilesAdapter extends RecyclerView.Adapter<ChatMessageFil
         public TextView file;
         public ImageView image;
         public Button download;
+        public ProgressBar fileTransferInProgress;
 
         public ChatMessageFilesViewHolder(View view) {
             super(view);
@@ -147,6 +152,7 @@ public class ChatMessageFilesAdapter extends RecyclerView.Adapter<ChatMessageFil
             file = view.findViewById(R.id.file);
             image = view.findViewById(R.id.image);
             download = view.findViewById(R.id.download);
+            fileTransferInProgress = view.findViewById(R.id.fileTransferInProgress);
         }
     }
 

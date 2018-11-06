@@ -75,7 +75,7 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ChatBubbleViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull ChatBubbleViewHolder holder, int position) {
         final EventLog event = mHistory.get(position);
 
         holder.delete.setVisibility(View.GONE);
@@ -111,18 +111,14 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
             message.setListener(new ChatMessageListenerStub() {
                 @Override
                 public void onFileTransferProgressIndication(ChatMessage message, Content content, int offset, int total) {
-                    ChatBubbleViewHolder holder = (ChatBubbleViewHolder) message.getUserData();
-                    if (holder == null) return;
-                                /*if (offset == total) {
-                                    fileTransferProgressBar.setVisibility(View.GONE);
-                                    fileTransferAction.setVisibility(View.GONE);
-                                    fileTransferLayout.setVisibility(View.GONE);
-
-                                    displayAttachedFile(message, ChatBubbleViewHolder.this);
-                                } else {
-                                    fileTransferProgressBar.setVisibility(View.VISIBLE);
-                                    fileTransferProgressBar.setProgress(offset * 100 / total);
-                                }*/
+                    ChatBubbleFilesAdapter.ChatMessageFilesViewHolder holder = (ChatBubbleFilesAdapter.ChatMessageFilesViewHolder)content.getUserData();
+                    if (holder != null) {
+                        if (offset == total) {
+                            holder.fileTransferInProgress.setVisibility(View.GONE);
+                        } else {
+                            holder.fileTransferInProgress.setVisibility(View.VISIBLE);
+                        }
+                    }
                 }
 
                 @Override
@@ -130,7 +126,7 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
                     ChatBubbleViewHolder holder = (ChatBubbleViewHolder) message.getUserData();
                     if (holder != null) {
                         holder.bindMessage(message, null);
-                        changeBackgroundDependingOnPreviousAndNextEvents(message, holder, position);
+                        changeBackgroundDependingOnPreviousAndNextEvents(message, holder, holder.getAdapterPosition());
                     }
                 }
             });

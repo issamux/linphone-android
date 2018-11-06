@@ -183,4 +183,11 @@
         <item name="android:lineSpacingExtra">-1.7sp</item>
     </style>
 
+    <style name="font32" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/colorH</item>
+        <item name="android:textSize">11.7sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
 </resources>

@@ -66,7 +66,7 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
 
     public CheckBox delete;
     private ClickListener mListener;
-    private ChatMessageFilesAdapter mAdapter;
+    private ChatBubbleFilesAdapter mAdapter;
     private StaggeredGridLayoutManager mLayoutManager;
 
     public ChatBubbleViewHolder(Context context, View view, ClickListener listener) {
@@ -187,7 +187,7 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
 
         if (fileContents.size() > 0) {
             pictures.setVisibility(View.VISIBLE);
-            mAdapter = new ChatMessageFilesAdapter(mContext, message, fileContents);
+            mAdapter = new ChatBubbleFilesAdapter(mContext, message, fileContents);
             pictures.setAdapter(mAdapter);
             pictures.setHasFixedSize(true);
             mLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
