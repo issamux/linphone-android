@@ -112,13 +112,21 @@ public class ChatMessageFilesAdapter extends RecyclerView.Adapter<ChatMessageFil
                 }
             });
         } else {
-            String appData = c.getFilePath();
+            final String appData = c.getFilePath();
             if (LinphoneUtils.isExtensionImage(appData)) {
                 holder.image.setVisibility(View.VISIBLE);
                 loadBitmap(appData, holder.image);
             } else {
                 holder.file.setVisibility(View.VISIBLE);
+                holder.file.setTag(appData);
                 holder.file.setText(LinphoneUtils.getExtensionFromFileName(appData));
+                holder.file.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String appData = (String) v.getTag();
+                        openFile(appData);
+                    }
+                });
             }
         }
     }
@@ -140,7 +148,9 @@ public class ChatMessageFilesAdapter extends RecyclerView.Adapter<ChatMessageFil
             image = view.findViewById(R.id.image);
             download = view.findViewById(R.id.download);
         }
-    }private void loadBitmap(String path, ImageView imageView) {
+    }
+
+    private void loadBitmap(String path, ImageView imageView) {
         if (cancelPotentialWork(path, imageView)) {
             BitmapWorkerTask task = new BitmapWorkerTask(imageView);
             AsyncBitmap asyncBitmap = new AsyncBitmap(mContext.getResources(), BitmapFactory.decodeResource(mContext.getResources(), R.drawable.chat_file), task);

@@ -9,14 +9,14 @@
         android:gravity="center"
         style="@style/font25"
         android:background="@color/colorA"
-        android:layout_width="50dp"
-        android:layout_height="50dp"/>
+        android:layout_width="100dp"
+        android:layout_height="100dp"/>
 
     <ImageView
         android:id="@+id/image"
         android:adjustViewBounds="true"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"/>
+        android:layout_height="100dp"/>
 
     <Button
         android:id="@+id/download"
