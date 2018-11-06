@@ -61,7 +61,7 @@ import java.util.List;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 
-public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFilesAdapter.ChatMessageFilesViewHolder> {
+public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFilesAdapter.ChatBubbleFilesViewHolder> {
     private Context mContext;
     private ChatMessage mMessage;
     private List<Content> mContents;
@@ -74,14 +74,14 @@ public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFiles
 
     @NonNull
     @Override
-    public ChatMessageFilesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatBubbleFilesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_bubble_content, parent, false);
-        ChatMessageFilesViewHolder holder = new ChatMessageFilesViewHolder(layoutView);
+        ChatBubbleFilesViewHolder holder = new ChatBubbleFilesViewHolder(layoutView);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ChatMessageFilesViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ChatBubbleFilesViewHolder holder, int position) {
         holder.file.setVisibility(View.GONE);
         holder.image.setVisibility(View.GONE);
         holder.download.setVisibility(View.GONE);
@@ -91,30 +91,47 @@ public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFiles
         c.setUserData(holder);
 
         if (c.isFileTransfer()) {
-            holder.download.setVisibility(View.VISIBLE);
-            holder.download.setTag(holder);
-            holder.download.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mContext.getPackageManager().checkPermission(WRITE_EXTERNAL_STORAGE, mContext.getPackageName()) == PackageManager.PERMISSION_GRANTED) {
-                        v.setEnabled(false);
-                        Content content = (Content) v.getTag();
-                        String filename = content.getName();
-                        File file = new File(LinphoneUtils.getStorageDirectory(mContext), filename);
-                        int prefix = 1;
-                        while (file.exists()) {
-                            file = new File(LinphoneUtils.getStorageDirectory(mContext), prefix + "_" + filename);
-                            Log.w("File with that name already exists, renamed to " + prefix + "_" + filename);
-                            prefix += 1;
-                        }
-                        content.setFilePath(file.getPath());
-                        mMessage.downloadContent(content);
-                    } else {
-                        Log.w("WRITE_EXTERNAL_STORAGE permission not granted, won't be able to store the downloaded file");
-                        LinphoneActivity.instance().checkAndRequestExternalStoragePermission();
-                    }
+            if (mMessage.isOutgoing()) {
+                holder.fileTransferInProgress.setVisibility(View.VISIBLE);
+                final String appData = c.getFilePath();
+                if (LinphoneUtils.isExtensionImage(appData)) {
+                    holder.image.setVisibility(View.VISIBLE);
+                    loadBitmap(appData, holder.image);
+                } else {
+                    holder.file.setVisibility(View.VISIBLE);
+                    holder.file.setTag(appData);
+                    holder.file.setText(LinphoneUtils.getNameFromFilePath(appData));
                 }
-            });
+            } else {
+                if (mMessage.isFileTransferInProgress() && mMessage.getFileTransferInformation() == c) {
+                    holder.fileTransferInProgress.setVisibility(View.VISIBLE);
+                }
+                holder.download.setVisibility(View.VISIBLE);
+                holder.download.setTag(c);
+                holder.download.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mContext.getPackageManager().checkPermission(WRITE_EXTERNAL_STORAGE, mContext.getPackageName()) == PackageManager.PERMISSION_GRANTED) {
+                            v.setEnabled(false);
+                            Content content = (Content) v.getTag();
+
+                            String filename = content.getName();
+                            File file = new File(LinphoneUtils.getStorageDirectory(mContext), filename);
+                            int prefix = 1;
+                            while (file.exists()) {
+                                file = new File(LinphoneUtils.getStorageDirectory(mContext), prefix + "_" + filename);
+                                Log.w("File with that name already exists, renamed to " + prefix + "_" + filename);
+                                prefix += 1;
+                            }
+                            content.setFilePath(file.getPath());
+                            mMessage.downloadContent(content);
+                        } else {
+                            Log.w("WRITE_EXTERNAL_STORAGE permission not granted, won't be able to store the downloaded file");
+                            LinphoneActivity.instance().checkAndRequestExternalStoragePermission();
+                        }
+                    }
+                });
+            }
         } else {
             final String appData = c.getFilePath();
             if (LinphoneUtils.isExtensionImage(appData)) {
@@ -140,13 +157,13 @@ public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFiles
         return mContents.size();
     }
 
-    class ChatMessageFilesViewHolder extends RecyclerView.ViewHolder {
+    class ChatBubbleFilesViewHolder extends RecyclerView.ViewHolder {
         public TextView file;
         public ImageView image;
         public Button download;
         public ProgressBar fileTransferInProgress;
 
-        public ChatMessageFilesViewHolder(View view) {
+        public ChatBubbleFilesViewHolder(View view) {
             super(view);
 
             file = view.findViewById(R.id.file);

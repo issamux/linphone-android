@@ -32,7 +32,6 @@ import org.linphone.contacts.LinphoneContact;
 import org.linphone.core.Address;
 import org.linphone.core.ChatMessage;
 import org.linphone.core.ChatMessageListenerStub;
-import org.linphone.core.Content;
 import org.linphone.core.EventLog;
 import org.linphone.ui.SelectableAdapter;
 import org.linphone.ui.SelectableHelper;
@@ -109,18 +108,6 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
             changeBackgroundDependingOnPreviousAndNextEvents(message, holder, position);
 
             message.setListener(new ChatMessageListenerStub() {
-                @Override
-                public void onFileTransferProgressIndication(ChatMessage message, Content content, int offset, int total) {
-                    ChatBubbleFilesAdapter.ChatMessageFilesViewHolder holder = (ChatBubbleFilesAdapter.ChatMessageFilesViewHolder)content.getUserData();
-                    if (holder != null) {
-                        if (offset == total) {
-                            holder.fileTransferInProgress.setVisibility(View.GONE);
-                        } else {
-                            holder.fileTransferInProgress.setVisibility(View.VISIBLE);
-                        }
-                    }
-                }
-
                 @Override
                 public void onMsgStateChanged(ChatMessage message, ChatMessage.State state) {
                     ChatBubbleViewHolder holder = (ChatBubbleViewHolder) message.getUserData();
