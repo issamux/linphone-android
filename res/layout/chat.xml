@@ -192,12 +192,12 @@
 
 	<ImageView
 		android:id="@+id/room_security_level"
-		android:layout_width="wrap_content"
+		android:layout_width="40dp"
 		android:layout_height="wrap_content"
 		android:src="@drawable/security_alert_indicator"
 		android:layout_alignParentRight="true"
 		android:layout_below="@id/top"
 		android:layout_marginTop="6dp"
-		android:layout_marginRight="6dp"/>
+		android:layout_marginRight="7dp"/>
 
 </RelativeLayout>

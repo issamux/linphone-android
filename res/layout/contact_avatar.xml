@@ -3,9 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/avatar_layout"
     android:layout_width="45dp"
-    android:layout_height="35dp"
-    android:gravity="center"
-    android:layout_centerHorizontal="true">
+    android:layout_height="35dp">
 
     <ImageView
         android:id="@+id/contact_picture"

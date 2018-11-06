@@ -100,18 +100,7 @@ public class ImdnFragment extends Fragment {
         mSentHeader = view.findViewById(R.id.sent_layout_header);
         mUndeliveredHeader = view.findViewById(R.id.undelivered_layout_header);
 
-        mBubble = new ChatBubbleViewHolder(view.findViewById(R.id.bubble));
-        mBubble.eventLayout.setVisibility(View.GONE);
-        mBubble.bubbleLayout.setVisibility(View.VISIBLE);
-        mBubble.delete.setVisibility(View.GONE);
-        mBubble.messageText.setVisibility(View.GONE);
-        mBubble.messageImage.setVisibility(View.GONE);
-        mBubble.fileTransferLayout.setVisibility(View.GONE);
-        mBubble.fileName.setVisibility(View.GONE);
-        mBubble.openFileButton.setVisibility(View.GONE);
-        mBubble.messageStatus.setVisibility(View.INVISIBLE);
-        mBubble.messageSendingInProgress.setVisibility(View.GONE);
-        mBubble.imdmLayout.setVisibility(View.INVISIBLE);
+        mBubble = new ChatBubbleViewHolder(getActivity(), view.findViewById(R.id.bubble), null);
 
         mMessage = mRoom.findMessage(mMessageId);
         mListener = new ChatMessageListenerStub() {
@@ -122,23 +111,6 @@ public class ImdnFragment extends Fragment {
         };
         if (mMessage == null) return null;
         mMessage.setListener(mListener);
-
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        layoutParams.setMargins(100, 10, 10, 10);
-        if (mMessage.isOutgoing()) {
-            mBubble.background.setBackgroundResource(R.drawable.resizable_chat_bubble_outgoing);
-            Compatibility.setTextAppearance(mBubble.contactName, getActivity(), R.style.font3);
-            Compatibility.setTextAppearance(mBubble.fileTransferAction, getActivity(), R.style.font15);
-            mBubble.fileTransferAction.setBackgroundResource(R.drawable.resizable_confirm_delete_button);
-            ContactAvatar.setAvatarMask(mBubble.avatarLayout, R.drawable.avatar_chat_mask_outgoing);
-        } else {
-            mBubble.background.setBackgroundResource(R.drawable.resizable_chat_bubble_incoming);
-            Compatibility.setTextAppearance(mBubble.contactName, getActivity(), R.style.font9);
-            Compatibility.setTextAppearance(mBubble.fileTransferAction, getActivity(), R.style.font8);
-            mBubble.fileTransferAction.setBackgroundResource(R.drawable.resizable_assistant_button);
-            ContactAvatar.setAvatarMask(mBubble.avatarLayout, R.drawable.avatar_chat_mask);
-        }
 
         return view;
     }
@@ -153,36 +125,13 @@ public class ImdnFragment extends Fragment {
     private void refreshInfo() {
         Address remoteSender = mMessage.getFromAddress();
         LinphoneContact contact = ContactsManager.getInstance().findContactFromAddress(remoteSender);
-        String displayName;
 
-        if (contact != null) {
-            if (contact.getFullName() != null) {
-                displayName = contact.getFullName();
-            } else {
-                displayName = LinphoneUtils.getAddressDisplayName(remoteSender);
-            }
-
-            ContactAvatar.displayAvatar(contact, mBubble.avatarLayout);
-        } else {
-            displayName = LinphoneUtils.getAddressDisplayName(remoteSender);
-            ContactAvatar.displayAvatar(displayName, mBubble.avatarLayout);
-        }
-        mBubble.contactName.setText(LinphoneUtils.timestampToHumanDate(getActivity(), mMessage.getTime(), R.string.messages_date_format) + " - " + displayName);
-
-        if (mMessage.hasTextContent()) {
-            String msg = mMessage.getTextContent();
-            Spanned text = LinphoneUtils.getTextWithHttpLinks(msg);
-            mBubble.messageText.setText(text);
-            mBubble.messageText.setMovementMethod(LinkMovementMethod.getInstance());
-            mBubble.messageText.setVisibility(View.VISIBLE);
-        }
-
-        String appData = mMessage.getAppdata();
-        if (appData != null) { // Something to display
-            mBubble.fileName.setVisibility(View.VISIBLE);
-            mBubble.fileName.setText(LinphoneUtils.getNameFromFilePath(appData));
-            // We purposely chose not to display the image
-        }
+        mBubble.delete.setVisibility(View.GONE);
+        mBubble.eventLayout.setVisibility(View.GONE);
+        mBubble.securityEventLayout.setVisibility(View.GONE);
+        mBubble.rightAnchor.setVisibility(View.GONE);
+        mBubble.bubbleLayout.setVisibility(View.GONE);
+        mBubble.bindMessage(mMessage, contact);
 
         mRead.removeAllViews();
         mDelivered.removeAllViews();

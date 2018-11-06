@@ -167,4 +167,20 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+	<style name="font30" parent="@android:style/TextAppearance.Small">
+		<item name="android:textColor">@color/colorM</item>
+		<item name="android:textSize">13sp</item>
+		<item name="android:fontFamily">sans-serif</item>
+		<item name="android:textStyle">normal</item>
+		<item name="android:lineSpacingExtra">0sp</item>
+	</style>
+
+    <style name="font31" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/colorC</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:lineSpacingExtra">-1.7sp</item>
+    </style>
+
 </resources>
