@@ -33,6 +33,7 @@ import org.linphone.core.Address;
 import org.linphone.core.ChatMessage;
 import org.linphone.core.ChatMessageListenerStub;
 import org.linphone.core.EventLog;
+import org.linphone.mediastream.Log;
 import org.linphone.ui.SelectableAdapter;
 import org.linphone.ui.SelectableHelper;
 
@@ -42,6 +43,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
+    public static int MAX_TIME_TO_GROUP_MESSAGES = 60;
+
     private Context mContext;
     private List<EventLog> mHistory;
     private List<LinphoneContact> mParticipants;
@@ -231,13 +234,15 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
     private void changeBackgroundDependingOnPreviousAndNextEvents(ChatMessage message, ChatBubbleViewHolder holder, int position) {
         boolean hasPrevious = false, hasNext = false;
 
-        // Do not forget history is reversed, so previous in order is next in list display !
+        // Do not forget history is reversed, so previous in order is next in list display and chronology !
         if (position > 0 && mContext.getResources().getBoolean(R.bool.lower_space_between_chat_bubbles_if_same_person)) {
             EventLog previousEvent = (EventLog) getItem(position - 1);
             if (previousEvent.getType() == EventLog.Type.ConferenceChatMessage) {
                 ChatMessage previousMessage = previousEvent.getChatMessage();
                 if (previousMessage.getFromAddress().weakEqual(message.getFromAddress())) {
-                    hasPrevious = true;
+                    if (previousMessage.getTime() - message.getTime() < MAX_TIME_TO_GROUP_MESSAGES) {
+                        hasPrevious = true;
+                    }
                 }
             }
         }
@@ -246,11 +251,13 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
             if (nextEvent.getType() == EventLog.Type.ConferenceChatMessage) {
                 ChatMessage nextMessage = nextEvent.getChatMessage();
                 if (nextMessage.getFromAddress().weakEqual(message.getFromAddress())) {
-                    holder.timeText.setVisibility(View.GONE);
-                    if (!message.isOutgoing()) {
-                        holder.avatarLayout.setVisibility(View.INVISIBLE);
+                    if (message.getTime() - nextMessage.getTime() < MAX_TIME_TO_GROUP_MESSAGES) {
+                        holder.timeText.setVisibility(View.GONE);
+                        if (!message.isOutgoing()) {
+                            holder.avatarLayout.setVisibility(View.INVISIBLE);
+                        }
+                        hasNext = true;
                     }
-                    hasNext = true;
                 }
             }
         }
