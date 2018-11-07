@@ -78,7 +78,7 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ChatBubbleViewHolder holder, int position) {
-        final EventLog event = mHistory.get(position);
+        EventLog event = mHistory.get(position);
 
         holder.delete.setVisibility(View.GONE);
         holder.eventLayout.setVisibility(View.GONE);
@@ -94,7 +94,7 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
         }
 
         if (event.getType() == EventLog.Type.ConferenceChatMessage) {
-            final ChatMessage message = event.getChatMessage();
+            ChatMessage message = event.getChatMessage();
             message.setUserData(holder);
 
             LinphoneContact contact = null;

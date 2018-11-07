@@ -109,7 +109,7 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
         void onItemClicked(int position);
     }
 
-    public void bindMessage(final ChatMessage message, LinphoneContact contact) {
+    public void bindMessage(ChatMessage message, LinphoneContact contact) {
         eventLayout.setVisibility(View.GONE);
         securityEventLayout.setVisibility(View.GONE);
         rightAnchor.setVisibility(View.VISIBLE);
