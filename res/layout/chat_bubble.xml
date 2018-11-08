@@ -117,7 +117,9 @@
                 android:divider="@android:color/transparent"
                 android:choiceMode="multipleChoice"
                 android:transcriptMode="normal"
-                android:layout_margin="10dp"
+                android:layout_marginLeft="10dp"
+				android:layout_marginRight="10dp"
+				android:layout_marginTop="10dp"
                 android:cacheColorHint="@color/transparent"
                 android:listSelector="@color/transparent"/>
 
