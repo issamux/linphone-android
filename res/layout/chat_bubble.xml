@@ -108,7 +108,8 @@
             android:layout_marginBottom="1dp"
             android:background="@drawable/chat_bubble_outgoing_full"
             android:layout_below="@+id/time"
-            android:layout_toLeftOf="@+id/imdn">
+            android:layout_toLeftOf="@+id/imdn"
+            android:paddingBottom="10dp">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/pictures"
@@ -129,7 +130,9 @@
                 android:layout_height="wrap_content"
                 android:maxWidth="250dp"
                 android:textAppearance="@style/font31"
-                android:layout_margin="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
                 android:layout_below="@id/pictures"/>
 
         </RelativeLayout>

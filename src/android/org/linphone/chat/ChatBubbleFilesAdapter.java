@@ -176,7 +176,7 @@ public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFiles
     private void loadBitmap(String path, ImageView imageView) {
         if (cancelPotentialWork(path, imageView)) {
             BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-            AsyncBitmap asyncBitmap = new AsyncBitmap(mContext.getResources(), BitmapFactory.decodeResource(mContext.getResources(), R.drawable.chat_file), task);
+            AsyncBitmap asyncBitmap = new AsyncBitmap(mContext.getResources(), BitmapFactory.decodeResource(mContext.getResources(), R.drawable.chat_file_default), task);
             imageView.setImageDrawable(asyncBitmap);
             task.execute(path);
         }
@@ -219,14 +219,14 @@ public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFiles
      */
 
     private class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
-        private static final int SIZE_SMALL = 500;
+        private static final int SIZE_SMALL = 100;
         private final WeakReference<ImageView> imageViewReference;
         public String path;
 
         public BitmapWorkerTask(ImageView imageView) {
             path = null;
             // Use a WeakReference to ensure the ImageView can be garbage collected
-            imageViewReference = new WeakReference<ImageView>(imageView);
+            imageViewReference = new WeakReference<>(imageView);
         }
 
         // Decode image in background.
@@ -276,7 +276,7 @@ public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFiles
                 }
                 return thumbnail;
             }
-            return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.chat_file);
+            return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.chat_file_default);
         }
 
         // Once complete, see if ImageView is still around and set bitmap.
