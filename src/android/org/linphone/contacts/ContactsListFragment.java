@@ -50,7 +50,7 @@ import java.util.List;
 public class ContactsListFragment extends Fragment implements OnItemClickListener, ContactsUpdatedListener, ContactsListAdapter.ViewHolder.ClickListener, SelectableHelper.DeleteListener {
     private RecyclerView contactsList;
     private TextView noSipContact, noContact;
-    private ImageView allContacts, linphoneContacts, newContact, edit;
+    private ImageView allContacts, linphoneContacts, newContact;
     private boolean onlyDisplayLinphoneContacts;
     private View allContactsSelected, linphoneContactsSelected;
     private int lastKnownPosition;
@@ -85,7 +85,6 @@ public class ContactsListFragment extends Fragment implements OnItemClickListene
         linphoneContacts = view.findViewById(R.id.linphone_contacts);
         allContactsSelected = view.findViewById(R.id.all_contacts_select);
         linphoneContactsSelected = view.findViewById(R.id.linphone_contacts_select);
-        edit = view.findViewById(R.id.edit);
         contactsFetchInProgress = view.findViewById(R.id.contactsFetchInProgress);
         newContact = view.findViewById(R.id.newContact);
 
@@ -247,7 +246,6 @@ public class ContactsListFragment extends Fragment implements OnItemClickListene
             mSelectionHelper.enterEditionMode();
         }
         contactsList.setAdapter(mContactAdapter);
-        edit.setEnabled(true);
 
         mContactAdapter.notifyDataSetChanged();
 
@@ -321,7 +319,6 @@ public class ContactsListFragment extends Fragment implements OnItemClickListene
 
         if (LinphoneActivity.isInstanciated()) {
             LinphoneActivity.instance().selectMenu(FragmentsAvailable.CONTACTS_LIST);
-            LinphoneActivity.instance().hideTabBar(false);
             onlyDisplayLinphoneContacts = ContactsManager.getInstance().isLinphoneContactsPrefered() || getResources().getBoolean(R.bool.hide_non_linphone_contacts);
         }
         changeContactsToggle();

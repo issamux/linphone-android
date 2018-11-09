@@ -36,6 +36,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -153,7 +155,7 @@ public class LinphoneActivity extends LinphoneGenericActivity implements OnClick
     private RelativeLayout sideMenuContent, quitLayout, defaultAccount;
     private ListView accountsList, sideMenuItemList;
     private ImageView menu;
-    private List<String> sideMenuItems;
+    private List<MenuItem> sideMenuItems;
     private boolean callTransfer = false;
     private boolean isOnBackground = false;
 
@@ -372,7 +374,6 @@ public class LinphoneActivity extends LinphoneGenericActivity implements OnClick
         }
 
         fragment = null;
-
         switch (newFragmentType) {
             case HISTORY_LIST:
                 fragment = new HistoryListFragment();
@@ -862,35 +863,49 @@ public class LinphoneActivity extends LinphoneGenericActivity implements OnClick
     public void selectMenu(FragmentsAvailable menuToSelect) {
         currentFragment = menuToSelect;
         resetSelection();
+        boolean hideBottomBar = getResources().getBoolean(R.bool.hide_bottom_bar_on_second_level_views);
 
         switch (menuToSelect) {
             case HISTORY_LIST:
+                hideTabBar(false);
+                history_selected.setVisibility(View.VISIBLE);
+                break;
             case HISTORY_DETAIL:
+                hideTabBar(hideBottomBar);
                 history_selected.setVisibility(View.VISIBLE);
                 break;
             case CONTACTS_LIST:
+                hideTabBar(false);
+                contacts_selected.setVisibility(View.VISIBLE);
+                break;
             case CONTACT_DETAIL:
             case CONTACT_EDITOR:
+                hideTabBar(hideBottomBar);
                 contacts_selected.setVisibility(View.VISIBLE);
                 break;
             case DIALER:
+                hideTabBar(false);
                 dialer_selected.setVisibility(View.VISIBLE);
                 break;
             case SETTINGS:
             case ACCOUNT_SETTINGS:
-                hideTabBar(true);
+                hideTabBar(hideBottomBar);
                 mTopBar.setVisibility(View.VISIBLE);
                 break;
             case ABOUT:
-                hideTabBar(true);
+                hideTabBar(hideBottomBar);
                 break;
             case CHAT_LIST:
+                hideTabBar(false);
+                chat_selected.setVisibility(View.VISIBLE);
+                break;
             case CREATE_CHAT:
             case GROUP_CHAT:
             case INFO_GROUP_CHAT:
             case MESSAGE_IMDN:
             case CONTACT_DEVICES:
             case CHAT:
+                hideTabBar(hideBottomBar);
                 chat_selected.setVisibility(View.VISIBLE);
                 break;
         }
@@ -1574,20 +1589,20 @@ public class LinphoneActivity extends LinphoneGenericActivity implements OnClick
         sideMenu = findViewById(R.id.side_menu);
         sideMenuItems = new ArrayList<>();
         if (!getResources().getBoolean(R.bool.hide_assistant_from_side_menu)) {
-            sideMenuItems.add(getResources().getString(R.string.menu_assistant));
+            sideMenuItems.add(new MenuItem(getResources().getString(R.string.menu_assistant), R.drawable.menu_assistant));
         }
         if (!getResources().getBoolean(R.bool.hide_settings_from_side_menu)) {
-            sideMenuItems.add(getResources().getString(R.string.menu_settings));
+            sideMenuItems.add(new MenuItem(getResources().getString(R.string.menu_settings), R.drawable.menu_options));
         }
         if (getResources().getBoolean(R.bool.enable_in_app_purchase)) {
-            sideMenuItems.add(getResources().getString(R.string.inapp));
+            sideMenuItems.add(new MenuItem(getResources().getString(R.string.inapp), R.drawable.menu_options));
         }
-        sideMenuItems.add(getResources().getString(R.string.menu_about));
+        sideMenuItems.add(new MenuItem(getResources().getString(R.string.menu_about), R.drawable.menu_about));
         sideMenuContent = findViewById(R.id.side_menu_content);
         sideMenuItemList = findViewById(R.id.item_list);
         menu = findViewById(R.id.side_menu_button);
 
-        sideMenuItemList.setAdapter(new ArrayAdapter<>(this, R.layout.side_menu_item_cell, sideMenuItems));
+        sideMenuItemList.setAdapter(new MenuAdapter(this, R.layout.side_menu_item_cell, sideMenuItems));
         sideMenuItemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -1848,5 +1863,58 @@ public class LinphoneActivity extends LinphoneGenericActivity implements OnClick
             return cal1.get(Calendar.DAY_OF_YEAR) - cal2.get(Calendar.DAY_OF_YEAR);
         }
         return -1;
+    }
+
+    private class MenuItem {
+        public String name;
+        public int icon;
+
+        public MenuItem(String name, int icon) {
+            this.name = name;
+            this.icon = icon;
+        }
+
+        public String toString() {
+            return name;
+        }
+    }
+
+    private class MenuAdapter extends ArrayAdapter<MenuItem> {
+        private List<MenuItem> mItems;
+        private int mResource;
+
+        public MenuAdapter(@NonNull Context context, int resource, @NonNull List<MenuItem> objects) {
+            super(context, resource, objects);
+            mResource = resource;
+            mItems = objects;
+        }
+
+        @Nullable
+        @Override
+        public MenuItem getItem(int position) {
+            return mItems.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mItems.size();
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            View rowView = inflater.inflate(mResource, parent, false);
+
+            TextView textView = rowView.findViewById(R.id.item_name);
+            ImageView imageView = rowView.findViewById(R.id.item_icon);
+
+            MenuItem item = getItem(position);
+            textView.setText(item.name);
+            imageView.setImageResource(item.icon);
+
+            return rowView;
+        }
     }
 }

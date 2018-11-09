@@ -202,7 +202,6 @@ public class ChatListFragment extends Fragment implements ContactsUpdatedListene
 
         if (LinphoneActivity.isInstanciated()) {
             LinphoneActivity.instance().selectMenu(FragmentsAvailable.CHAT_LIST);
-            LinphoneActivity.instance().hideTabBar(false);
         }
 
         Core lc = LinphoneManager.getLcIfManagerNotDestroyedOrNull();
@@ -213,7 +212,7 @@ public class ChatListFragment extends Fragment implements ContactsUpdatedListene
         refreshChatRoomsList();
 
         ProxyConfig lpc = lc.getDefaultProxyConfig();
-        mNewGroupDiscussionButton.setEnabled(lpc != null && lpc.getConferenceFactoryUri() != null);
+        mNewGroupDiscussionButton.setVisibility((lpc != null && lpc.getConferenceFactoryUri() != null) ? View.VISIBLE : View.GONE);
     }
 
     @Override

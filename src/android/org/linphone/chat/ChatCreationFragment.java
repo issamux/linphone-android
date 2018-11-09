@@ -52,6 +52,7 @@ import org.linphone.core.ChatRoom;
 import org.linphone.core.ChatRoomListenerStub;
 import org.linphone.core.Core;
 import org.linphone.core.ProxyConfig;
+import org.linphone.fragments.FragmentsAvailable;
 import org.linphone.mediastream.Log;
 import org.linphone.ui.ContactSelectView;
 
@@ -166,9 +167,9 @@ public class ChatCreationFragment extends Fragment implements View.OnClickListen
         mSecurityToggle.setChecked(mChatRoomEncrypted);
         ProxyConfig lpc = LinphoneManager.getLc().getDefaultProxyConfig();
         if ((mChatRoomSubject != null && mChatRoomAddress != null) || (lpc == null || lpc.getConferenceFactoryUri() == null)) {
-            mSecurityToggle.setEnabled(false);
-            mSecurityToggleOn.setOnClickListener(null);
-            mSecurityToggleOff.setOnClickListener(null);
+            mSecurityToggle.setVisibility(View.GONE);
+            mSecurityToggleOn.setVisibility(View.GONE);
+            mSecurityToggleOff.setVisibility(View.GONE);
         }
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
@@ -244,6 +245,10 @@ public class ChatCreationFragment extends Fragment implements View.OnClickListen
     public void onResume() {
         ContactsManager.addContactsListener(this);
         super.onResume();
+
+        if (LinphoneActivity.isInstanciated()) {
+            LinphoneActivity.instance().selectMenu(FragmentsAvailable.CREATE_CHAT);
+        }
 
         InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
         if (getActivity().getCurrentFocus() != null) {

@@ -62,6 +62,7 @@ public class SelectableHelper {
         });
 
         mEditButton = view.findViewById(R.id.edit);
+        mEditButton.setEnabled(false);
 
         mEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,6 +105,7 @@ public class SelectableHelper {
                     @Override
                     public void onClick(View view) {
                         mDeleteListener.onDeleteSelection(getSelectedObjects());
+                        mEditButton.setEnabled(mAdapter.getItemCount() != 0);
                         dialog.dismiss();
                         quitEditionMode();
                     }
@@ -125,6 +127,7 @@ public class SelectableHelper {
 
     public void setAdapter(SelectableAdapter adapter) {
         mAdapter = adapter;
+        mEditButton.setEnabled(mAdapter.getItemCount() != 0);
     }
 
     public void updateSelectionButtons(boolean isSelectionEmpty, boolean isSelectionFull) {
