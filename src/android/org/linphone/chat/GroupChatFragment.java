@@ -831,6 +831,11 @@ public class GroupChatFragment extends Fragment implements ChatRoomListener, Con
         mSendMessageButton.setEnabled(true);
     }
 
+    private Bitmap scaleToFitHeight(Bitmap b, int height) {
+        float factor = height / (float) b.getHeight();
+        return Bitmap.createScaledBitmap(b, (int) (b.getWidth() * factor), height, true);
+    }
+
     private void addImageToPendingList(String path) {
         if (path == null) {
             Log.e("Can't add image to pending list because it's path is null...");
@@ -841,9 +846,12 @@ public class GroupChatFragment extends Fragment implements ChatRoomListener, Con
         pendingImage.setTag(path);
 
         ImageView image = pendingImage.findViewById(R.id.pendingImageForUpload);
+
         Bitmap bm = BitmapFactory.decodeFile(path);
         if (bm == null) return;
-        image.setImageBitmap(bm);
+        Bitmap scaled_bm = scaleToFitHeight(bm, LinphoneUtils.convertDpToPixels(mContext, 100));
+        bm.recycle();
+        image.setImageBitmap(scaled_bm);
 
         ImageView remove = pendingImage.findViewById(R.id.remove);
         remove.setTag(pendingImage);
