@@ -109,7 +109,8 @@
             android:background="@drawable/chat_bubble_outgoing_full"
             android:layout_below="@+id/time"
             android:layout_toLeftOf="@+id/imdn"
-            android:paddingBottom="10dp">
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/pictures"
@@ -118,9 +119,8 @@
                 android:divider="@android:color/transparent"
                 android:choiceMode="multipleChoice"
                 android:transcriptMode="normal"
-                android:layout_marginLeft="10dp"
-				android:layout_marginRight="10dp"
-				android:layout_marginTop="10dp"
+                android:layout_marginLeft="5dp"
+				android:layout_marginRight="5dp"
                 android:cacheColorHint="@color/transparent"
                 android:listSelector="@color/transparent"/>
 
@@ -132,7 +132,6 @@
                 android:textAppearance="@style/font31"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
                 android:layout_below="@id/pictures"/>
 
         </RelativeLayout>

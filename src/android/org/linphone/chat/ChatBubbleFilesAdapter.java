@@ -178,7 +178,7 @@ public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFiles
             BitmapWorkerTask task = new BitmapWorkerTask(imageView);
             AsyncBitmap asyncBitmap = new AsyncBitmap(mContext.getResources(), BitmapFactory.decodeResource(mContext.getResources(), R.drawable.chat_file_default), task);
             imageView.setImageDrawable(asyncBitmap);
-            task.execute(path);
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, path);
         }
     }
 
