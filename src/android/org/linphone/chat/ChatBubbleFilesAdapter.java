@@ -252,6 +252,8 @@ public class ChatBubbleFilesAdapter extends RecyclerView.Adapter<ChatBubbleFiles
                 }
 
                 ImageView imageView = imageViewReference.get();
+                if (imageView == null) return null;
+
                 try {
                     // Rotate the bitmap if possible/needed, using EXIF data
                     Matrix matrix = new Matrix();
