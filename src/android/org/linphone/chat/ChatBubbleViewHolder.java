@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -58,6 +59,7 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
     public RelativeLayout background;
     public RelativeLayout avatarLayout;
 
+    public ProgressBar sendInProgress;
     public TextView timeText;
     public ImageView outgoingImdn;
     public TextView messageText;
@@ -89,6 +91,7 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
         background = view.findViewById(R.id.background);
         avatarLayout = view.findViewById(R.id.avatar_layout);
 
+        sendInProgress = view.findViewById(R.id.send_in_progress);
         timeText = view.findViewById(R.id.time);
         outgoingImdn = view.findViewById(R.id.imdn);
         messageText = view.findViewById(R.id.message);
@@ -119,6 +122,7 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
         outgoingImdn.setVisibility(View.GONE);
         avatarLayout.setVisibility(View.GONE);
         pictures.setVisibility(View.GONE);
+        sendInProgress.setVisibility(View.GONE);
 
         ChatMessage.State status = message.getState();
         Address remoteSender = message.getFromAddress();
@@ -126,6 +130,8 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
         String time = LinphoneUtils.timestampToHumanDate(mContext, message.getTime(), R.string.messages_date_format);
 
         if (message.isOutgoing()) {
+            outgoingImdn.setVisibility(View.INVISIBLE); // For anchoring purposes
+
             if (status == ChatMessage.State.DeliveredToUser) {
                 outgoingImdn.setVisibility(View.VISIBLE);
                 outgoingImdn.setImageResource(R.drawable.imdn_received);
@@ -138,9 +144,10 @@ public class ChatBubbleViewHolder extends RecyclerView.ViewHolder implements Vie
             } else if (status == ChatMessage.State.FileTransferError) {
                 outgoingImdn.setVisibility(View.VISIBLE);
                 outgoingImdn.setImageResource(R.drawable.imdn_error);
+            } else if (status == ChatMessage.State.InProgress) {
+                sendInProgress.setVisibility(View.VISIBLE);
             }
 
-            outgoingImdn.setVisibility(View.VISIBLE);
             timeText.setVisibility(View.VISIBLE);
             background.setBackgroundResource(R.drawable.chat_bubble_outgoing_full);
         } else {

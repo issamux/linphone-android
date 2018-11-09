@@ -85,6 +85,7 @@ public class ChatEventsAdapter extends SelectableAdapter<ChatBubbleViewHolder> {
         holder.securityEventLayout.setVisibility(View.GONE);
         holder.rightAnchor.setVisibility(View.GONE);
         holder.bubbleLayout.setVisibility(View.GONE);
+        holder.sendInProgress.setVisibility(View.GONE);
 
         if (isEditionEnabled()) {
             holder.delete.setOnCheckedChangeListener(null);

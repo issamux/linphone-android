@@ -164,6 +164,16 @@
             android:layout_alignParentRight="true"
             android:layout_alignBottom="@id/background"/>
 
+        <ProgressBar
+            android:id="@+id/send_in_progress"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:indeterminateTint="@color/colorA"
+            android:src="@drawable/imdn_received"
+            android:layout_marginLeft="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignBottom="@id/background"/>
+
 	</RelativeLayout>
 
 </RelativeLayout>
