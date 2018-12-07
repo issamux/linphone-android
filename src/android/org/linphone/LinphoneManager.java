@@ -38,7 +38,6 @@ import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
-import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
@@ -412,12 +411,12 @@ public class LinphoneManager implements CoreListener, SensorEventListener, Accou
         return mLPConfigXsd;
     }
 
-    public void newOutgoingCall(AddressType address) {
+    public void newOutgoingCall(Context context, AddressType address) {
         String to = address.getText().toString();
-        newOutgoingCall(to, address.getDisplayedName());
+        newOutgoingCall(context, to, address.getDisplayedName());
     }
 
-    public void newOutgoingCall(String to, String displayName) {
+    public void newOutgoingCall(Context context, String to, String displayName) {
 //		if (mLc.inCall()) {
 //			listenerDispatcher.tryingNewOutgoingCallButAlreadyInCall();
 //			return;
@@ -448,7 +447,7 @@ public class LinphoneManager implements CoreListener, SensorEventListener, Accou
         }
         lAddress.setDisplayName(displayName);
 
-        boolean isLowBandwidthConnection = !LinphoneUtils.isHighBandwidthConnection(LinphoneService.instance().getApplicationContext());
+        boolean isLowBandwidthConnection = !LinphoneUtils.isHighBandwidthConnection(context);
 
         if (mLc.isNetworkReachable()) {
             try {
@@ -726,7 +725,8 @@ public class LinphoneManager implements CoreListener, SensorEventListener, Accou
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-        mProximityWakelock = mPowerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "manager_proximity_sensor");
+        mProximityWakelock = mPowerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK,
+                "linphone:manager_proximity_sensor");
 
         mHookIntentFilter = new IntentFilter("com.base.module.phone.HOOKEVENT");
         mHookIntentFilter.setPriority(999);
@@ -988,21 +988,7 @@ public class LinphoneManager implements CoreListener, SensorEventListener, Accou
     }
 
     public Context getContext() {
-        try {
-            if (LinphoneActivity.isInstanciated())
-                return LinphoneActivity.instance();
-            else if (CallActivity.isInstanciated())
-                return CallActivity.instance();
-            else if (CallIncomingActivity.isInstanciated())
-                return CallIncomingActivity.instance();
-            else if (mServiceContext != null)
-                return mServiceContext;
-            else if (LinphoneService.isReady())
-                return LinphoneService.instance().getApplicationContext();
-        } catch (Exception e) {
-            Log.e(e);
-        }
-        return null;
+        return LinphoneApplication.getContext();
     }
 
     public void setAudioManagerInCallMode() {

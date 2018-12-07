@@ -993,7 +993,7 @@ public class LinphoneActivity extends LinphoneGenericActivity implements OnClick
         AddressType address = new AddressText(this, null);
         address.setText(number);
         address.setDisplayedName(name);
-        LinphoneManager.getInstance().newOutgoingCall(address);
+        LinphoneManager.getInstance().newOutgoingCall(this, address);
     }
 
     public void startIncallActivity(Call currentCall) {

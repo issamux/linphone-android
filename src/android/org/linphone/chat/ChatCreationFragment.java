@@ -140,7 +140,7 @@ public class ChatCreationFragment extends Fragment implements View.OnClickListen
 
             @Override
             public void afterTextChanged(Editable s) {
-                mSearchAdapter.searchContacts(mSearchField.getText().toString(), mContactsList);
+                mSearchAdapter.searchContacts(getActivity(), mSearchField.getText().toString(), mContactsList);
             }
         });
 
@@ -279,7 +279,7 @@ public class ChatCreationFragment extends Fragment implements View.OnClickListen
     }
 
     private void updateList() {
-        mSearchAdapter.searchContacts(mSearchField.getText().toString(), mContactsList);
+        mSearchAdapter.searchContacts(getActivity(), mSearchField.getText().toString(), mContactsList);
         mSearchAdapter.notifyDataSetChanged();
     }
 
@@ -307,7 +307,7 @@ public class ChatCreationFragment extends Fragment implements View.OnClickListen
 
     private void resetAndResearch() {
         ContactsManager.getInstance().getMagicSearch().resetSearchCache();
-        mSearchAdapter.searchContacts(mSearchField.getText().toString(), mContactsList);
+        mSearchAdapter.searchContacts(getActivity(), mSearchField.getText().toString(), mContactsList);
     }
 
     private void addSelectedContactAddress(ContactAddress ca) {
@@ -428,7 +428,7 @@ public class ChatCreationFragment extends Fragment implements View.OnClickListen
             }
         } else if (id == R.id.clearSearchField) {
             mSearchField.setText("");
-            mSearchAdapter.searchContacts("", mContactsList);
+            mSearchAdapter.searchContacts(getActivity(), "", mContactsList);
         } else if (id == R.id.contactChatDelete) {
             ContactAddress ca = (ContactAddress) view.getTag();
             removeContactFromSelection(ca);

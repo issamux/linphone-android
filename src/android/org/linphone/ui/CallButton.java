@@ -59,7 +59,7 @@ public class CallButton extends ImageView implements OnClickListener, AddressAwa
         try {
             if (!LinphoneManager.getInstance().acceptCallIfIncomingPending()) {
                 if (mAddress.getText().length() > 0) {
-                    LinphoneManager.getInstance().newOutgoingCall(mAddress);
+                    LinphoneManager.getInstance().newOutgoingCall(getContext(), mAddress);
                 } else {
                     if (LinphonePreferences.instance().isBisFeatureEnabled()) {
                         CallLog[] logs = LinphoneManager.getLc().getCallLogs();

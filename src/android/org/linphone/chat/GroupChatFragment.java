@@ -848,8 +848,8 @@ public class GroupChatFragment extends Fragment implements ChatRoomListener, Con
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    LinphoneManager.getInstance().newOutgoingCall(from.asStringUriOnly()
-                            , (contact != null) ? contact.getFullName() : from.getUsername());
+                    LinphoneManager.getInstance().newOutgoingCall(getContext(),
+                            from.asStringUriOnly(), (contact != null) ? contact.getFullName() : from.getUsername());
                     dialog.dismiss();
                 }
             });

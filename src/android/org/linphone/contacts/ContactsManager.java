@@ -443,7 +443,7 @@ public class ContactsManager extends ContentObserver implements FriendListListen
                             // No refkey so it's a standalone contact
                             contact = new LinphoneContact();
                             contact.setFriend(friend);
-                            contact.refresh();
+                            contact.refresh(loader.getContext());
                             contacts.add(contact);
                             if (contact.hasAddress()) {
                                 sipContacts.add(contact);
