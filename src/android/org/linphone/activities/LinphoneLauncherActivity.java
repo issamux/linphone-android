@@ -145,7 +145,7 @@ public class LinphoneLauncherActivity extends Activity {
                         if (CallActivity.isInstanciated()) {
                             CallActivity.instance().startIncomingCallActivity();
                         } else {
-                            LinphoneManager.getInstance().newOutgoingCall(numberToCall, null);
+                            LinphoneManager.getInstance().newOutgoingCall(getApplicationContext(), numberToCall, null);
                         }
                     }
                 }

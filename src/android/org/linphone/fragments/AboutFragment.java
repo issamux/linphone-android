@@ -87,7 +87,7 @@ public class AboutFragment extends Fragment implements OnClickListener {
                     uploadInProgress = false;
                     if (progress != null) progress.dismiss();
                     if (state == LogCollectionUploadState.Delivered) {
-                        sendLogs(LinphoneService.instance().getApplicationContext(), info);
+                        sendLogs(getActivity(), info);
                     }
                 }
             }

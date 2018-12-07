@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 
+import org.linphone.LinphoneApplication;
 import org.linphone.LinphoneManager;
 import org.linphone.LinphoneService;
 import org.linphone.call.CallActivity;
@@ -131,11 +132,7 @@ public class BluetoothManager extends BroadcastReceiver {
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         }
         if (mContext == null) {
-            if (LinphoneService.isReady()) {
-                mContext = LinphoneService.instance().getApplicationContext();
-            } else {
-                return false;
-            }
+            mContext = LinphoneApplication.getContext();
         }
         if (mContext != null && mAudioManager == null) {
             mAudioManager = ((AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE));

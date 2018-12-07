@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -226,7 +227,7 @@ public class DialerFragment extends Fragment {
 
     public void newOutgoingCall(String numberOrSipAddress) {
         displayTextInAddressBar(numberOrSipAddress);
-        LinphoneManager.getInstance().newOutgoingCall(mAddress);
+        LinphoneManager.getInstance().newOutgoingCall(getActivity(), mAddress);
     }
 
     public void newOutgoingCall(Intent intent) {
@@ -238,7 +239,7 @@ public class DialerFragment extends Fragment {
                 mAddress.setText(intent.getData().getSchemeSpecificPart());
             } else {
                 Uri contactUri = intent.getData();
-                String address = ContactsManager.getAddressOrNumberForAndroidContact(LinphoneService.instance().getContentResolver(), contactUri);
+                String address = ContactsManager.getAddressOrNumberForAndroidContact(getActivity().getContentResolver(), contactUri);
                 if (address != null) {
                     mAddress.setText(address);
                 } else {
@@ -250,7 +251,7 @@ public class DialerFragment extends Fragment {
             mAddress.clearDisplayedName();
             intent.setData(null);
 
-            LinphoneManager.getInstance().newOutgoingCall(mAddress);
+            LinphoneManager.getInstance().newOutgoingCall(getActivity(), mAddress);
         }
     }
 }

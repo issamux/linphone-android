@@ -198,7 +198,7 @@ public class Digit extends Button implements AddressAware {
                 mAddress.getEditableText().clear();
                 if (voiceMail != null) {
                     mAddress.getEditableText().append(voiceMail);
-                    LinphoneManager.getInstance().newOutgoingCall(mAddress);
+                    LinphoneManager.getInstance().newOutgoingCall(getContext(), mAddress);
                 }
                 return true;
             }

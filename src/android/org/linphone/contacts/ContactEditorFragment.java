@@ -159,7 +159,7 @@ public class ContactEditorFragment extends Fragment {
                     contact.addOrUpdateNumberOrAddress(noa);
                 }
                 contact.setOrganization(organization.getText().toString(), true);
-                contact.save();
+                contact.save(getActivity());
                 getFragmentManager().popBackStackImmediate();
             }
         });

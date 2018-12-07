@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -137,7 +138,7 @@ public class CallIncomingActivity extends LinphoneGenericActivity {
                         if (oldMove < -25)
                             begin = false;
                         if (curX < arrow.getWidth() && !begin) {
-                            answer();
+                            answer(CallIncomingActivity.this);
                             return true;
                         }
                         break;
@@ -292,7 +293,7 @@ public class CallIncomingActivity extends LinphoneGenericActivity {
         finish();
     }
 
-    private void answer() {
+    private void answer(Context context) {
         if (alreadyAcceptedOrDeniedCall) {
             return;
         }
@@ -300,7 +301,7 @@ public class CallIncomingActivity extends LinphoneGenericActivity {
 
         CallParams params = LinphoneManager.getLc().createCallParams(mCall);
 
-        boolean isLowBandwidthConnection = !LinphoneUtils.isHighBandwidthConnection(LinphoneService.instance().getApplicationContext());
+        boolean isLowBandwidthConnection = !LinphoneUtils.isHighBandwidthConnection(context);
 
         if (params != null) {
             params.enableLowBandwidth(isLowBandwidthConnection);

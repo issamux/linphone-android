@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.linphone.contacts;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -38,7 +39,6 @@ import org.linphone.core.PresenceBasicStatus;
 import org.linphone.core.PresenceModel;
 import org.linphone.core.ProxyConfig;
 import org.linphone.core.SearchResult;
-import org.linphone.mediastream.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -248,7 +248,7 @@ public class SearchContactsListAdapter extends RecyclerView.Adapter<SearchContac
         return contacts.size();
     }
 
-    public void searchContacts(String search, RecyclerView resultContactsSearch) {
+    public void searchContacts(final Context context, String search, RecyclerView resultContactsSearch) {
         List<ContactAddress> result = new ArrayList<>();
 
         String domain = "";
@@ -262,7 +262,7 @@ public class SearchContactsListAdapter extends RecyclerView.Adapter<SearchContac
                 contact = new LinphoneContact();
                 if (sr.getFriend() != null) {
                     contact.setFriend(sr.getFriend());
-                    contact.refresh();
+                    contact.refresh(context);
                 }
             }
             if (sr.getAddress() != null || sr.getPhoneNumber() != null) {
